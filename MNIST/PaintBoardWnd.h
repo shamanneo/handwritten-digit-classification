@@ -32,6 +32,8 @@ class CPaintBoardWnd : public CWindowImpl<CPaintBoardWnd>
 	public :
 		bool SaveBitmap() ; // Save bitmap to local storage.
 		void DeleteBitmap() ; 
+	protected :
+		void InvertColor(Gdiplus::Bitmap *pBitmap) ; 
 } ;
 
 

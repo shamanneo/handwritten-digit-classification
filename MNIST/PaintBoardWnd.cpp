@@ -34,7 +34,7 @@ LRESULT CPaintBoardWnd::OnMouseMove(UINT /*uMsg*/, WPARAM wParam, LPARAM lParam,
 	if(wParam & VK_LBUTTON)
 	{
 		HDC hDC = GetDC() ; 
-		HPEN hPen = ::CreatePen(PS_SOLID, 10, RGB(0, 0, 0)) ; 
+		HPEN hPen = ::CreatePen(PS_SOLID, 15, RGB(0, 0, 0)) ; 
 		HGDIOBJ hPrevPen = ::SelectObject(hDC, hPen) ; 
 		::MoveToEx(hDC, m_pt.x, m_pt.y, NULL) ; 
 		m_pt.x = GET_X_LPARAM(lParam) ; 
@@ -119,11 +119,12 @@ bool CPaintBoardWnd::SaveBitmap()
 	}
 	hResizedBitmap = reinterpret_cast<HBITMAP>(::SelectObject(hMemDCDst, hPrevDstBitmap)) ; 
 	Gdiplus::Bitmap *pBitmap = Gdiplus::Bitmap::FromHBITMAP(hResizedBitmap, NULL) ; 
+	InvertColor(pBitmap) ; // Convert black to white, white to black for model input.
 	CLSID pngClsid ; 
 	HRESULT hResult = ::CLSIDFromString(_T("{557cf406-1a04-11d3-9a73-0000f81ef32e}"), &pngClsid) ; 
 	if(hResult == NOERROR)
 	{
-		Gdiplus::Status stat = pBitmap->Save(_T("Input.png"), &pngClsid, NULL) ; 
+		Gdiplus::Status stat = pBitmap->Save(_T("C:\\MILab\\MNIST-Project\\Windows-Machine-Learning-master\\SharedContent\\media\\Input.png"), &pngClsid, NULL) ; 
 		if(stat == Gdiplus::Ok)
 		{
 			ATLTRACE("The bitmap has been saved successfully!\n") ; 
@@ -144,4 +145,29 @@ bool CPaintBoardWnd::SaveBitmap()
 	::DeleteDC(hMemDCSrc) ; 
 	ReleaseDC(hDC) ; 
 	return true ; 
+}
+
+//		protected 
+
+void CPaintBoardWnd::InvertColor(Gdiplus::Bitmap *pBitmap) 
+{
+	const int nSize = 28 ; 
+	const Gdiplus::Color black { 0, 0, 0 } ; 
+	const Gdiplus::Color white { 255, 255, 255 } ; 
+	Gdiplus::Color color ; 
+	for(int nX = 0 ; nX < nSize ; nX++)
+	{
+		for(int nY = 0 ; nY < nSize ; nY++)
+		{
+			pBitmap->GetPixel(nX, nY, &color) ; 
+			if(color.GetValue() == color.White)
+			{
+				pBitmap->SetPixel(nX, nY, black) ; 
+			}
+			else 
+			{
+				pBitmap->SetPixel(nX, nY, white) ; 
+			}
+		}
+	}
 }
