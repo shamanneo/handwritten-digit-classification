@@ -5,7 +5,9 @@ class CMainApp
 {
     private :
         CMainWnd m_MainWnd ; 
-
+        private : // GDI+
+        Gdiplus::GdiplusStartupInput m_gdiplusStartUpInput ; 
+        ULONG_PTR m_gdiplusToken ; 
     public :
         CMainApp() ; 
         ~CMainApp() ; 

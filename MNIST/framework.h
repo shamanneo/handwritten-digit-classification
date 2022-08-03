@@ -21,3 +21,9 @@
 
 #include <string>
 #include <fstream>
+
+// GDI+ Header Files.
+#pragma warning(disable : 4458) 
+#include <objidl.h>
+#include <gdiplus.h>
+#pragma comment (lib,"Gdiplus.lib")
