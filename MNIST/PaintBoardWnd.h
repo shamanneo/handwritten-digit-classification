@@ -30,6 +30,7 @@ class CPaintBoardWnd : public CWindowImpl<CPaintBoardWnd>
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled) ;
 		LRESULT OnDestory(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled) ;
 	public :
+		bool SaveBitmap() ; // Save bitmap to local storage.
 		void DeleteBitmap() ; 
 } ;
 

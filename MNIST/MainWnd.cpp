@@ -72,6 +72,9 @@ LRESULT CMainWnd::OnNMClickClearButton(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT CMainWnd::OnNMClickCRunButton(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled)
 {   
-
+    if(!m_paintBoardWnd.SaveBitmap())
+    {
+        ATLASSERT(0) ; 
+    }
     return 0 ; 
 }

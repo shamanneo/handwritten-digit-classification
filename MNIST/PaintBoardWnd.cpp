@@ -99,3 +99,8 @@ void CPaintBoardWnd::DeleteBitmap()
 		return ; 
 	}
 }
+
+bool CPaintBoardWnd::SaveBitmap()
+{
+	return true ; 
+}
