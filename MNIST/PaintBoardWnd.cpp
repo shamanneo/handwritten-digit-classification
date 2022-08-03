@@ -63,7 +63,7 @@ LRESULT CPaintBoardWnd::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 	return 0 ; 
 }
 
-LRESULT CPaintBoardWnd::OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled)
+LRESULT CPaintBoardWnd::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL &/*bHandled*/)
 {
 	PAINTSTRUCT pt ; 
 	HDC hDC = BeginPaint(&pt) ; 
@@ -81,7 +81,7 @@ LRESULT CPaintBoardWnd::OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &b
 	return 0 ; 
 }
 
-LRESULT CPaintBoardWnd::OnDestory(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled) 
+LRESULT CPaintBoardWnd::OnDestory(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL &/*bHandled*/) 
 {
 	PostQuitMessage(0) ; 
 	return 0 ; 
@@ -102,5 +102,46 @@ void CPaintBoardWnd::DeleteBitmap()
 
 bool CPaintBoardWnd::SaveBitmap()
 {
+	RECT rc ; 
+	GetClientRect(&rc) ; 
+	const int nSize = 28 ; 
+	HDC hDC = GetDC() ; 
+	HDC hMemDCSrc = ::CreateCompatibleDC(hDC) ; 
+	HDC hMemDCDst = ::CreateCompatibleDC(hDC) ; 
+	HBITMAP hResizedBitmap = ::CreateCompatibleBitmap(hDC, nSize, nSize) ; 
+	HBITMAP hPrevSrcBitmap = reinterpret_cast<HBITMAP>(::SelectObject(hMemDCSrc, m_hBitmap)) ; 
+	HBITMAP hPrevDstBitmap = reinterpret_cast<HBITMAP>(::SelectObject(hMemDCDst, hResizedBitmap)) ; 
+	int res = ::StretchBlt(hMemDCDst, 0, 0, nSize, nSize, hMemDCSrc, 0, 0, rc.right - rc.left, rc.bottom - rc.top, SRCCOPY) ;
+	if(!res)
+	{
+		ATLTRACE("StretchBlt function is failed.") ; 
+		return false ; 
+	}
+	hResizedBitmap = reinterpret_cast<HBITMAP>(::SelectObject(hMemDCDst, hPrevDstBitmap)) ; 
+	Gdiplus::Bitmap *pBitmap = Gdiplus::Bitmap::FromHBITMAP(hResizedBitmap, NULL) ; 
+	CLSID pngClsid ; 
+	HRESULT hResult = ::CLSIDFromString(_T("{557cf406-1a04-11d3-9a73-0000f81ef32e}"), &pngClsid) ; 
+	if(hResult == NOERROR)
+	{
+		Gdiplus::Status stat = pBitmap->Save(_T("Input.png"), &pngClsid, NULL) ; 
+		if(stat == Gdiplus::Ok)
+		{
+			ATLTRACE("The bitmap has been saved successfully!\n") ; 
+		}
+		else 
+		{
+			ATLTRACE("The bitmap has not been saved.\n") ; 
+			return false ; 
+		}
+	}
+	else
+	{
+		ATLTRACE("The CLSID was not obtained.\n") ; 
+		return false ; 
+	}
+	::SelectObject(hMemDCDst, hPrevSrcBitmap) ; 
+	::DeleteDC(hMemDCDst) ; 
+	::DeleteDC(hMemDCSrc) ; 
+	ReleaseDC(hDC) ; 
 	return true ; 
 }
