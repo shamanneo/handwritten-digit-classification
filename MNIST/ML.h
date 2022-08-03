@@ -27,7 +27,7 @@ class CML
 		~CML() ; 
 	public :
 		void LoadModel() ; 
-		VideoFrame LoadImageFile(hstring filePath) ; 
+		VideoFrame LoadImageFile() ; 
 		void BindModel() ; 
 		void EvaluateModel() ; 
 		void PrintResults(IVectorView<float> results) ; 

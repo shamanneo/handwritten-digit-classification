@@ -1,4 +1,5 @@
 #pragma once
+#include "ML.h"
 #include "PaintBoardWnd.h" 
 #include "ResWnd.h" 
 
@@ -12,6 +13,8 @@ class CMainWnd : public CWindowImpl<CMainWnd>
         // Controls.
 		CWindow m_ctlClearButton ; // ID : IDC_CLEAR_BUTTON.
         CWindow m_ctlRunButton ; // ID : IDC_RUN_BUTTON.
+    private :
+        CML m_ml ; 
     public :
         CMainWnd() ; 
         ~CMainWnd() ; 
@@ -43,5 +46,6 @@ class CMainWnd : public CWindowImpl<CMainWnd>
     public :
         LRESULT OnNMClickClearButton(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled) ;
         LRESULT OnNMClickCRunButton(WORD wNotifyCode, WORD wID, HWND hWndCtl, BOOL &bHandled) ;
-        
+    protected :
+        void Classify() ; 
 } ;

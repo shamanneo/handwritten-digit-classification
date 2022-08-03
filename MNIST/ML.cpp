@@ -4,11 +4,11 @@
 CML::CML()
 	: m_model(nullptr), m_session(nullptr), m_binding(nullptr), m_imageFrame(nullptr)
 {
-	m_modelPath = L"C:\\MILab\\MNIST-Project\\Windows-Machine-Learning-master\\SharedContent\\models\\SqueezeNet.onnx" ; 
+	m_modelPath = L"C:\\Programming\\Win32-programming\\Windows-Machine-Learning-master\\SharedContent\\models\\mnist.onnx" ; 
 	m_deviceName = "default" ;
-	m_imagePath = L"C:\\MILab\\MNIST-Project\\Windows-Machine-Learning-master\\SharedContent\\media\\kitten_224.png" ; 
+	m_imagePath = L"input.png" ; 
 	m_deviceKind = LearningModelDeviceKind::Default ;
-	m_labelsFilePath = "C:\\MILab\\MNIST-Project\\Windows-Machine-Learning-master\\Samples\\SqueezeNetObjectDetection\\Desktop\\cpp\\Labels.txt" ;   
+	m_labelsFilePath = "C:\\Programming\\Win32-programming\\Windows-Machine-Learning-master\\Samples\\MNIST\\Labels.txt" ;   
 }
 
 CML::~CML()
@@ -19,22 +19,22 @@ CML::~CML()
 void CML::LoadModel()
 {
     // Load the model 
-    printf("Loading modelfile '%ws' on the '%s' device\n", m_modelPath.c_str(), m_deviceName.c_str()) ;
+    ATLTRACE("Loading modelfile '%ws' on the '%s' device\n", m_modelPath.c_str(), m_deviceName.c_str()) ;
     DWORD ticks = ::GetTickCount() ; 
     m_model = LearningModel::LoadFromFilePath(m_modelPath) ; 
     ticks = ::GetTickCount() - ticks ; 
-    printf("model file loaded in %d ticks\n", ticks) ;
+    ATLTRACE("model file loaded in %d ticks\n", ticks) ;
 }
 
-VideoFrame CML::LoadImageFile(hstring filePath) 
+VideoFrame CML::LoadImageFile() 
 {
-    printf("Loading the image...\n") ;
+    ATLTRACE("Loading the image...\n") ;
     DWORD ticks = ::GetTickCount() ;
     VideoFrame inputImage = nullptr ;
     try
     {
         // open the file
-        StorageFile file = StorageFile::GetFileFromPathAsync(filePath).get() ;
+        StorageFile file = StorageFile::GetFileFromPathAsync(m_imagePath).get() ;
         // get a stream on it
         auto stream = file.OpenAsync(FileAccessMode::Read).get() ;
         // Create the decoder from the stream
@@ -46,18 +46,18 @@ VideoFrame CML::LoadImageFile(hstring filePath)
     }
     catch (...)
     {
-        printf("failed to load the image file, make sure you are using fully qualified paths\r\n") ;
+        ATLTRACE("failed to load the image file, make sure you are using fully qualified paths\r\n") ;
         exit(EXIT_FAILURE) ;
     }
     ticks = ::GetTickCount() - ticks ;
-    printf("image file loaded in %d ticks\n", ticks) ;
+    ATLTRACE("image file loaded in %d ticks\n", ticks) ;
     // all done
     return inputImage ;
 }
 
 void CML::BindModel()
 {
-    printf("Binding the model...\n") ; 
+    ATLTRACE("Binding the model...\n") ; 
     DWORD ticks = GetTickCount() ;
 
     // now create a session and binding
@@ -70,19 +70,19 @@ void CML::BindModel()
     m_binding.Bind(L"softmaxout_1", TensorFloat::Create(shape)) ;
 
     ticks = GetTickCount() - ticks ;
-    printf("Model bound in %d ticks\n", ticks) ;
+    ATLTRACE("Model bound in %d ticks\n", ticks) ;
 }
 
 void CML::EvaluateModel()
 {
     // now run the model
-    printf("Running the model...\n") ;
+    ATLTRACE("Running the model...\n") ;
     DWORD ticks = GetTickCount() ;
 
     auto results = m_session.Evaluate(m_binding, L"RunId") ;
 
     ticks = GetTickCount() - ticks ;
-    printf("model run took %d ticks\n", ticks) ;
+    ATLTRACE("model run took %d ticks\n", ticks) ;
 
     // get the output
     auto resultTensor = results.Outputs().Lookup(L"softmaxout_1").as<TensorFloat>() ;
@@ -114,7 +114,7 @@ void CML::PrintResults(IVectorView<float> results)
     // Display the result
     for (int i = 0; i < 3; i++)
     {
-        printf("%s with confidence of %f\n", m_labels[topProbabilityLabelIndexes[i]].c_str(), topProbabilities[i]) ;
+        ATLTRACE("%s with confidence of %f\n", m_labels[topProbabilityLabelIndexes[i]].c_str(), topProbabilities[i]) ;
     }
 }
 
@@ -124,7 +124,7 @@ void CML::LoadLabels()
     std::ifstream labelFile { m_labelsFilePath, std::ifstream::in } ;  
     if (labelFile.fail())
     {
-        printf("failed to load the %s file. Make sure it exists in the same folder as the app\r\n", m_labelsFilePath.c_str()) ;
+        ATLTRACE("failed to load the %s file. Make sure it exists in the same folder as the app\r\n", m_labelsFilePath.c_str()) ;
         exit(EXIT_FAILURE) ;
     }
 

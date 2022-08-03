@@ -13,14 +13,17 @@ CMainWnd::~CMainWnd()
 
 LRESULT CMainWnd::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL &/*bHandled*/) 
 {
+    const DWORD dwChildWndStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS ; 
     const int nSize = 280 ; 
     RECT rcPaintBoardWnd { 1, 1, nSize, nSize } ; 
-    const DWORD dwChildWndStyle = WS_CHILD | WS_VISIBLE | WS_CLIPCHILDREN | WS_CLIPSIBLINGS ; 
-    m_paintBoardWnd.Create(m_hWnd, &rcPaintBoardWnd, NULL, dwChildWndStyle | WS_BORDER) ; 
+    RECT rcResWnd { nSize, 1, nSize + 49 * 2 + nSize, 49 * 2 + nSize } ; 
     RECT rcClearButtonWnd { 1, nSize + 1, nSize + 1, nSize + 50 } ; 
     int nCleraButtonWndHeight = (nSize + 50) - (nSize + 1) ; 
     RECT rcRunButtonWnd { 1, nSize + 1 + nCleraButtonWndHeight, nSize + 1, nSize + 50 + nCleraButtonWndHeight } ; 
-     
+    // Create child windows.
+    m_paintBoardWnd.Create(m_hWnd, &rcPaintBoardWnd, NULL, dwChildWndStyle | WS_BORDER) ; 
+    m_resWnd.Create(m_hWnd, &rcResWnd, NULL, dwChildWndStyle | WS_BORDER) ; 
+    // Create controls.
     m_ctlClearButton.Create(_T("button"), m_hWnd, &rcClearButtonWnd, _T("Clear"), dwChildWndStyle | BS_PUSHBUTTON, 
         NULL, IDC_CLEAR_BUTTON, NULL) ; 
     m_ctlRunButton.Create(_T("button"), m_hWnd, &rcRunButtonWnd, _T("Run"), dwChildWndStyle | BS_PUSHBUTTON, 
@@ -72,9 +75,24 @@ LRESULT CMainWnd::OnNMClickClearButton(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT CMainWnd::OnNMClickCRunButton(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL &/*bHandled*/)
 {   
-    if(!m_paintBoardWnd.SaveBitmap())
+    if(m_paintBoardWnd.SaveBitmap())
+    {
+        Classify() ; 
+    }
+    else 
     {
         ATLASSERT(0) ; 
     }
     return 0 ; 
+}
+
+//      protected
+
+void CMainWnd::Classify() 
+{
+    init_apartment() ;
+    m_ml.LoadModel();
+    m_ml.LoadImageFile() ; 
+    m_ml.BindModel() ; 
+    m_ml.EvaluateModel() ;
 }
