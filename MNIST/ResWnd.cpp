@@ -3,7 +3,7 @@
 
 CResWnd::CResWnd()
 {
-
+	m_sentence = _T("The model prediction value is :") ; 
 }
 
 CResWnd::~CResWnd()
@@ -26,7 +26,7 @@ LRESULT CResWnd::OnPaint(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BO
 	PAINTSTRUCT pt ; 
 	HDC hDC = BeginPaint(&pt) ; 
 
-	UNREFERENCED_PARAMETER(hDC) ; 
+	TextOut(hDC, 0, 0, m_sentence, m_sentence.GetLength()) ; 
 
 	EndPaint(&pt) ; 
 	return 0 ; 
@@ -36,4 +36,13 @@ LRESULT CResWnd::OnDestory(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 {
 	PostQuitMessage(0) ; 
 	return 0 ; 
+}
+
+void CResWnd::SetPred(std::string &pred) 
+{
+	m_sentence = _T("The model prediction value is :") ; 
+	m_pred = pred.c_str() ; 
+	m_sentence.Append(m_pred) ; 
+	InvalidateRect(NULL, TRUE) ; 
+	UpdateWindow() ; 
 }

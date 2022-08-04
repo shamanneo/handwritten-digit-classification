@@ -4,11 +4,11 @@
 CML::CML()
 	: m_model(nullptr), m_session(nullptr), m_binding(nullptr), m_imageFrame(nullptr)
 {
-	m_modelPath = L"C:\\MILab\\MNIST-Project\\Windows-Machine-Learning-master\\SharedContent\\models\\SqueezeNet.onnx" ; 
+	m_modelPath = L"C:\\Programming\\Win32-programming\\Windows-Machine-Learning-master\\SharedContent\\models\\mnist.onnx" ; 
 	m_deviceName = "default" ;
-	m_imagePath = L"C:\\MILab\\MNIST-Project\\Windows-Machine-Learning-master\\SharedContent\\media\\kitten_224.png" ; 
+	m_imagePath = L"C:\\Projects\\Handwritten-Digit-Classification\\MNIST\\input.png" ; 
 	m_deviceKind = LearningModelDeviceKind::Default ;
-	m_labelsFilePath = "C:\\MILab\\MNIST-Project\\Windows-Machine-Learning-master\\Samples\\SqueezeNetObjectDetection\\Desktop\\cpp\\Labels.txt" ;   
+	m_labelsFilePath = "C:\\Programming\\Win32-programming\\Windows-Machine-Learning-master\\Samples\\MNIST\\Labels.txt" ;   
 }
 
 CML::~CML()
@@ -19,22 +19,22 @@ CML::~CML()
 void CML::LoadModel()
 {
     // Load the model 
-    printf("Loading modelfile '%ws' on the '%s' device\n", m_modelPath.c_str(), m_deviceName.c_str()) ;
+    ATLTRACE("Loading modelfile '%ws' on the '%s' device\n", m_modelPath.c_str(), m_deviceName.c_str()) ;
     DWORD ticks = ::GetTickCount() ; 
     m_model = LearningModel::LoadFromFilePath(m_modelPath) ; 
     ticks = ::GetTickCount() - ticks ; 
-    printf("model file loaded in %d ticks\n", ticks) ;
+    ATLTRACE("model file loaded in %d ticks\n", ticks) ;
 }
 
-VideoFrame CML::LoadImageFile(hstring filePath) 
+void CML::LoadImageFile() 
 {
-    printf("Loading the image...\n") ;
+    ATLTRACE("Loading the image...\n") ;
     DWORD ticks = ::GetTickCount() ;
     VideoFrame inputImage = nullptr ;
     try
     {
         // open the file
-        StorageFile file = StorageFile::GetFileFromPathAsync(filePath).get() ;
+        StorageFile file = StorageFile::GetFileFromPathAsync(m_imagePath).get() ;
         // get a stream on it
         auto stream = file.OpenAsync(FileAccessMode::Read).get() ;
         // Create the decoder from the stream
@@ -46,58 +46,57 @@ VideoFrame CML::LoadImageFile(hstring filePath)
     }
     catch (...)
     {
-        printf("failed to load the image file, make sure you are using fully qualified paths\r\n") ;
+        ATLTRACE("failed to load the image file, make sure you are using fully qualified paths\r\n") ;
         exit(EXIT_FAILURE) ;
     }
     ticks = ::GetTickCount() - ticks ;
-    printf("image file loaded in %d ticks\n", ticks) ;
+    ATLTRACE("image file loaded in %d ticks\n", ticks) ;
     // all done
-    return inputImage ;
+    m_imageFrame = inputImage ; 
 }
 
 void CML::BindModel()
 {
-    printf("Binding the model...\n") ; 
+    ATLTRACE("Binding the model...\n") ; 
     DWORD ticks = GetTickCount() ;
 
     // now create a session and binding
     m_session = LearningModelSession{ m_model, LearningModelDevice(m_deviceKind) } ;
     m_binding = LearningModelBinding{ m_session } ;
     // bind the intput image
-    m_binding.Bind(L"data_0", ImageFeatureValue::CreateFromVideoFrame(m_imageFrame)) ;
+    m_binding.Bind(L"Input3", ImageFeatureValue::CreateFromVideoFrame(m_imageFrame)) ;
     // bind the output
     std::vector<int64_t> shape({ 1, 1000, 1, 1 }) ;
-    m_binding.Bind(L"softmaxout_1", TensorFloat::Create(shape)) ;
+    m_binding.Bind(L"Plus214_Output_0", TensorFloat::Create(shape)) ;
 
     ticks = GetTickCount() - ticks ;
-    printf("Model bound in %d ticks\n", ticks) ;
+    ATLTRACE("Model bound in %d ticks\n", ticks) ;
 }
 
-void CML::EvaluateModel()
+void CML::EvaluateModel(std::string &pred)
 {
     // now run the model
-    printf("Running the model...\n") ;
+    ATLTRACE("Running the model...\n") ;
     DWORD ticks = GetTickCount() ;
 
     auto results = m_session.Evaluate(m_binding, L"RunId") ;
 
     ticks = GetTickCount() - ticks ;
-    printf("model run took %d ticks\n", ticks) ;
+    ATLTRACE("model run took %d ticks\n", ticks) ;
 
     // get the output
-    auto resultTensor = results.Outputs().Lookup(L"softmaxout_1").as<TensorFloat>() ;
+    auto resultTensor = results.Outputs().Lookup(L"Plus214_Output_0").as<TensorFloat>() ;
     auto resultVector = resultTensor.GetAsVectorView() ;
-    PrintResults(resultVector) ;
+    GetResults(resultVector, pred) ;
 }
 
-void CML::PrintResults(IVectorView<float> results) 
+void CML::GetResults(IVectorView<float> results, std::string &pred) 
 {
     // load the labels
     LoadLabels() ;
     // Find the top 3 probabilities
     std::vector<float> topProbabilities(3) ;
     std::vector<int> topProbabilityLabelIndexes(3) ;
-    // SqueezeNet returns a list of 1000 options, with probabilities for each, loop through all
     for (uint32_t i = 0; i < results.Size(); i++)
     {
         // is it one of the top 3?
@@ -111,11 +110,8 @@ void CML::PrintResults(IVectorView<float> results)
             }
         }
     }
-    // Display the result
-    for (int i = 0; i < 3; i++)
-    {
-        printf("%s with confidence of %f\n", m_labels[topProbabilityLabelIndexes[i]].c_str(), topProbabilities[i]) ;
-    }
+    // Model prediction.
+    pred = m_labels[topProbabilityLabelIndexes[0]].c_str() ; 
 }
 
 void CML::LoadLabels()
@@ -124,7 +120,7 @@ void CML::LoadLabels()
     std::ifstream labelFile { m_labelsFilePath, std::ifstream::in } ;  
     if (labelFile.fail())
     {
-        printf("failed to load the %s file. Make sure it exists in the same folder as the app\r\n", m_labelsFilePath.c_str()) ;
+        ATLTRACE("failed to load the %s file. Make sure it exists in the same folder as the app\r\n", m_labelsFilePath.c_str()) ;
         exit(EXIT_FAILURE) ;
     }
 

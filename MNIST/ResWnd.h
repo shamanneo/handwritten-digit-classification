@@ -2,6 +2,9 @@
 
 class CResWnd : public CWindowImpl<CResWnd>
 { 
+	private :
+		CString m_pred ; 
+		CString m_sentence ; 
 	public :
 		CResWnd() ; 
 		~CResWnd() ; 
@@ -20,5 +23,7 @@ class CResWnd : public CWindowImpl<CResWnd>
 		LRESULT OnCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled) ;
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled) ;
 		LRESULT OnDestory(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled) ;
+	public :
+		void SetPred(std::string &pred) ; 
 } ;
 

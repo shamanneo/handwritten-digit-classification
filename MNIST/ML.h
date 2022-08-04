@@ -27,10 +27,10 @@ class CML
 		~CML() ; 
 	public :
 		void LoadModel() ; 
-		VideoFrame LoadImageFile(hstring filePath) ; 
+		void LoadImageFile() ; 
 		void BindModel() ; 
-		void EvaluateModel() ; 
-		void PrintResults(IVectorView<float> results) ; 
+		void EvaluateModel(std::string &pred) ; 
+		void GetResults(IVectorView<float> results, std::string &pred) ; 
 		void LoadLabels() ; 
 } ;
 
