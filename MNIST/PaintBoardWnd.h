@@ -30,11 +30,17 @@ class CPaintBoardWnd : public CWindowImpl<CPaintBoardWnd>
 		LRESULT OnPaint(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled) ;
 		LRESULT OnDestory(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled) ;
 	public :
+		const HBITMAP &GetBitmap() const ; 
 		bool SaveBitmap() ; // Save bitmap to local storage.
 		void DeleteBitmap() ; 
 	protected :
 		void InvertColor(Gdiplus::Bitmap *pBitmap) ; 
 } ;
+
+inline const HBITMAP &CPaintBoardWnd::GetBitmap() const
+{
+	return m_hBitmap ; 
+}
 
 
 

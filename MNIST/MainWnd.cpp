@@ -75,13 +75,16 @@ LRESULT CMainWnd::OnNMClickClearButton(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 
 LRESULT CMainWnd::OnNMClickCRunButton(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL &/*bHandled*/)
 {  
-    if(m_paintBoardWnd.SaveBitmap())
+    if(m_paintBoardWnd.GetBitmap() != NULL)
     {
-        Classify() ; 
-    }
-    else 
-    {
-        ATLASSERT(0) ; 
+        if(m_paintBoardWnd.SaveBitmap())
+        {
+            Classify() ; 
+        }
+        else 
+        {
+            ATLASSERT(0) ; 
+        }
     }
     return 0 ; 
 }
