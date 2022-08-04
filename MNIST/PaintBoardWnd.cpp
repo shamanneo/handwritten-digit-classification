@@ -124,7 +124,7 @@ bool CPaintBoardWnd::SaveBitmap()
 	HRESULT hResult = ::CLSIDFromString(_T("{557cf406-1a04-11d3-9a73-0000f81ef32e}"), &pngClsid) ; 
 	if(hResult == NOERROR)
 	{
-		Gdiplus::Status stat = pBitmap->Save(_T("input.png"), &pngClsid, NULL) ; 
+		Gdiplus::Status stat = pBitmap->Save(_T("C:\\Projects\\Handwritten-Digit-Classification\\MNIST\\input.png"), &pngClsid, NULL) ; 
 		if(stat == Gdiplus::Ok)
 		{
 			ATLTRACE("The bitmap has been saved successfully!\n") ; 

@@ -73,7 +73,7 @@ void CML::BindModel()
     ATLTRACE("Model bound in %d ticks\n", ticks) ;
 }
 
-void CML::EvaluateModel()
+void CML::EvaluateModel(std::string &pred)
 {
     // now run the model
     ATLTRACE("Running the model...\n") ;
@@ -87,10 +87,10 @@ void CML::EvaluateModel()
     // get the output
     auto resultTensor = results.Outputs().Lookup(L"Plus214_Output_0").as<TensorFloat>() ;
     auto resultVector = resultTensor.GetAsVectorView() ;
-    GetResults(resultVector) ;
+    GetResults(resultVector, pred) ;
 }
 
-void CML::GetResults(IVectorView<float> results) 
+void CML::GetResults(IVectorView<float> results, std::string &pred) 
 {
     // load the labels
     LoadLabels() ;
@@ -111,7 +111,7 @@ void CML::GetResults(IVectorView<float> results)
         }
     }
     // Model prediction.
-    std::string output = m_labels[topProbabilityLabelIndexes[0]].c_str() ; 
+    pred = m_labels[topProbabilityLabelIndexes[0]].c_str() ; 
 }
 
 void CML::LoadLabels()

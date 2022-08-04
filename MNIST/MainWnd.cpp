@@ -90,9 +90,13 @@ LRESULT CMainWnd::OnNMClickCRunButton(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /
 
 void CMainWnd::Classify() 
 {
+    std::string pred ;
+
     init_apartment() ;
     m_ml.LoadModel();
     m_ml.LoadImageFile() ; 
     m_ml.BindModel() ; 
-    m_ml.EvaluateModel() ;
+    m_ml.EvaluateModel(pred) ;
+    
+    m_resWnd.SetPred(pred) ; 
 }

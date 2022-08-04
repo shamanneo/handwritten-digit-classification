@@ -29,8 +29,8 @@ class CML
 		void LoadModel() ; 
 		void LoadImageFile() ; 
 		void BindModel() ; 
-		void EvaluateModel() ; 
-		void GetResults(IVectorView<float> results) ; 
+		void EvaluateModel(std::string &pred) ; 
+		void GetResults(IVectorView<float> results, std::string &pred) ; 
 		void LoadLabels() ; 
 } ;
 
