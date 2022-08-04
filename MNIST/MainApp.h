@@ -16,4 +16,6 @@ class CMainApp
     public :    
         static CMainApp &GetInstance() ; 
         static void Release() ; 
+    public :
+        bool PreTranslateMessage(MSG &msg) ; 
 } ;

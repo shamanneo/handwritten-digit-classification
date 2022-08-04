@@ -24,9 +24,13 @@ int CMainApp::Run(HINSTANCE hInstance, int nCmdShow)
     m_MainWnd.ShowWindow(nCmdShow) ; 
     m_MainWnd.UpdateWindow() ; 
 
-    while (::GetMessage(&msg, nullptr, 0, 0)) // main message loop.
+    while(::GetMessage(&msg, nullptr, 0, 0)) // main message loop.
     {
-        if (!::TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
+        if(PreTranslateMessage(msg))
+        {
+            continue ; 
+        }
+        if(!::TranslateAccelerator(msg.hwnd, hAccelTable, &msg))
         {
             ::TranslateMessage(&msg) ;
             ::DispatchMessage(&msg) ;
@@ -53,4 +57,13 @@ void CMainApp::Release()
         delete g_pMainApp ; 
         g_pMainApp = nullptr ; 
     }
+}
+
+bool CMainApp::PreTranslateMessage(MSG &msg) 
+{
+    if(m_MainWnd.IsDialogMessage(&msg)) 
+    {
+        return true ;
+    }
+    return false ;
 }

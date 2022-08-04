@@ -66,7 +66,8 @@ void CML::BindModel()
     // bind the intput image
     m_binding.Bind(L"Input3", ImageFeatureValue::CreateFromVideoFrame(m_imageFrame)) ;
     // bind the output
-    std::vector<int64_t> shape({ 1, 1000, 1, 1 }) ;
+    // std::vector<int64_t> shape({ 1, 1000, 1, 1 }) ;
+    std::vector<int64_t> shape({ 1, 10 }) ;
     m_binding.Bind(L"Plus214_Output_0", TensorFloat::Create(shape)) ;
 
     ticks = GetTickCount() - ticks ;

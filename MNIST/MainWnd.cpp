@@ -24,14 +24,14 @@ LRESULT CMainWnd::OnCreate(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
     m_paintBoardWnd.Create(m_hWnd, &rcPaintBoardWnd, NULL, dwChildWndStyle | WS_BORDER) ; 
     m_resWnd.Create(m_hWnd, &rcResWnd, NULL, dwChildWndStyle | WS_BORDER) ; 
     // Create controls.
-    m_ctlClearButton.Create(_T("button"), m_hWnd, &rcClearButtonWnd, _T("Clear"), dwChildWndStyle | BS_PUSHBUTTON, 
+    m_ctlClearButton.Create(_T("button"), m_hWnd, &rcClearButtonWnd, _T("Clear"), dwChildWndStyle | WS_TABSTOP | BS_PUSHBUTTON, 
         NULL, IDC_CLEAR_BUTTON, NULL) ; 
-    m_ctlRunButton.Create(_T("button"), m_hWnd, &rcRunButtonWnd, _T("Run"), dwChildWndStyle | BS_PUSHBUTTON, 
+    m_ctlRunButton.Create(_T("button"), m_hWnd, &rcRunButtonWnd, _T("Run"), dwChildWndStyle | WS_TABSTOP | BS_PUSHBUTTON, 
         NULL, IDC_RUN_BUTTON, NULL) ; 
     return 0 ;
 }
 
-LRESULT CMainWnd::OnCommand(UINT uMsg, WPARAM wParam, LPARAM lParam, BOOL &bHandled) 
+LRESULT CMainWnd::OnCommand(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL &/*bHandled*/) 
 {
     return 0 ; 
 }
@@ -52,7 +52,7 @@ LRESULT CMainWnd::OnSize(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BO
     return 0 ; 
 }
 
-LRESULT CMainWnd::OnLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM lParam, BOOL &/*bHandled*/) 
+LRESULT CMainWnd::OnLButtonDown(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, BOOL &/*bHandled*/) 
 {
     return 0 ; 
 }
@@ -74,7 +74,7 @@ LRESULT CMainWnd::OnNMClickClearButton(WORD /*wNotifyCode*/, WORD /*wID*/, HWND 
 }
 
 LRESULT CMainWnd::OnNMClickCRunButton(WORD /*wNotifyCode*/, WORD /*wID*/, HWND /*hWndCtl*/, BOOL &/*bHandled*/)
-{   
+{  
     if(m_paintBoardWnd.SaveBitmap())
     {
         Classify() ; 
@@ -97,6 +97,5 @@ void CMainWnd::Classify()
     m_ml.LoadImageFile() ; 
     m_ml.BindModel() ; 
     m_ml.EvaluateModel(pred) ;
-    
     m_resWnd.SetPred(pred) ; 
 }
