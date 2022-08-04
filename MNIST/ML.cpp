@@ -6,7 +6,7 @@ CML::CML()
 {
 	m_modelPath = L"C:\\Programming\\Win32-programming\\Windows-Machine-Learning-master\\SharedContent\\models\\mnist.onnx" ; 
 	m_deviceName = "default" ;
-	m_imagePath = L"input.png" ; 
+	m_imagePath = L"C:\\Projects\\Handwritten-Digit-Classification\\MNIST\\input.png" ; 
 	m_deviceKind = LearningModelDeviceKind::Default ;
 	m_labelsFilePath = "C:\\Programming\\Win32-programming\\Windows-Machine-Learning-master\\Samples\\MNIST\\Labels.txt" ;   
 }
@@ -26,7 +26,7 @@ void CML::LoadModel()
     ATLTRACE("model file loaded in %d ticks\n", ticks) ;
 }
 
-VideoFrame CML::LoadImageFile() 
+void CML::LoadImageFile() 
 {
     ATLTRACE("Loading the image...\n") ;
     DWORD ticks = ::GetTickCount() ;
@@ -52,7 +52,7 @@ VideoFrame CML::LoadImageFile()
     ticks = ::GetTickCount() - ticks ;
     ATLTRACE("image file loaded in %d ticks\n", ticks) ;
     // all done
-    return inputImage ;
+    m_imageFrame = inputImage ; 
 }
 
 void CML::BindModel()
@@ -64,10 +64,10 @@ void CML::BindModel()
     m_session = LearningModelSession{ m_model, LearningModelDevice(m_deviceKind) } ;
     m_binding = LearningModelBinding{ m_session } ;
     // bind the intput image
-    m_binding.Bind(L"data_0", ImageFeatureValue::CreateFromVideoFrame(m_imageFrame)) ;
+    m_binding.Bind(L"Input3", ImageFeatureValue::CreateFromVideoFrame(m_imageFrame)) ;
     // bind the output
     std::vector<int64_t> shape({ 1, 1000, 1, 1 }) ;
-    m_binding.Bind(L"softmaxout_1", TensorFloat::Create(shape)) ;
+    m_binding.Bind(L"Plus214_Output_0", TensorFloat::Create(shape)) ;
 
     ticks = GetTickCount() - ticks ;
     ATLTRACE("Model bound in %d ticks\n", ticks) ;
@@ -85,19 +85,18 @@ void CML::EvaluateModel()
     ATLTRACE("model run took %d ticks\n", ticks) ;
 
     // get the output
-    auto resultTensor = results.Outputs().Lookup(L"softmaxout_1").as<TensorFloat>() ;
+    auto resultTensor = results.Outputs().Lookup(L"Plus214_Output_0").as<TensorFloat>() ;
     auto resultVector = resultTensor.GetAsVectorView() ;
-    PrintResults(resultVector) ;
+    GetResults(resultVector) ;
 }
 
-void CML::PrintResults(IVectorView<float> results) 
+void CML::GetResults(IVectorView<float> results) 
 {
     // load the labels
     LoadLabels() ;
     // Find the top 3 probabilities
     std::vector<float> topProbabilities(3) ;
     std::vector<int> topProbabilityLabelIndexes(3) ;
-    // SqueezeNet returns a list of 1000 options, with probabilities for each, loop through all
     for (uint32_t i = 0; i < results.Size(); i++)
     {
         // is it one of the top 3?
@@ -111,11 +110,8 @@ void CML::PrintResults(IVectorView<float> results)
             }
         }
     }
-    // Display the result
-    for (int i = 0; i < 3; i++)
-    {
-        ATLTRACE("%s with confidence of %f\n", m_labels[topProbabilityLabelIndexes[i]].c_str(), topProbabilities[i]) ;
-    }
+    // Model prediction.
+    std::string output = m_labels[topProbabilityLabelIndexes[0]].c_str() ; 
 }
 
 void CML::LoadLabels()

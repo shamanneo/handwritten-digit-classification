@@ -27,10 +27,10 @@ class CML
 		~CML() ; 
 	public :
 		void LoadModel() ; 
-		VideoFrame LoadImageFile() ; 
+		void LoadImageFile() ; 
 		void BindModel() ; 
 		void EvaluateModel() ; 
-		void PrintResults(IVectorView<float> results) ; 
+		void GetResults(IVectorView<float> results) ; 
 		void LoadLabels() ; 
 } ;
 
