@@ -31,6 +31,5 @@ class CML
 		void BindModel() ; 
 		void EvaluateModel(std::string &pred) ; 
 		void GetResults(IVectorView<float> results, std::string &pred) ; 
-		void LoadLabels() ; 
 } ;
 

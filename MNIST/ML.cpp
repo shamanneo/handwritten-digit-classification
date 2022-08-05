@@ -2,13 +2,17 @@
 #include "ML.h"
 
 CML::CML()
-	: m_model(nullptr), m_session(nullptr), m_binding(nullptr), m_imageFrame(nullptr)
+	: m_model(nullptr), 
+      m_session(nullptr), 
+      m_binding(nullptr), 
+      m_imageFrame(nullptr)
 {
 	m_modelPath = L"C:\\Programming\\Win32-programming\\Windows-Machine-Learning-master\\SharedContent\\models\\mnist.onnx" ; 
 	m_deviceName = "default" ;
 	m_imagePath = L"C:\\Projects\\Handwritten-Digit-Classification\\MNIST\\input.png" ; 
 	m_deviceKind = LearningModelDeviceKind::Default ;
-	m_labelsFilePath = "C:\\Programming\\Win32-programming\\Windows-Machine-Learning-master\\Samples\\MNIST\\Labels.txt" ;   
+    std::vector<std::string> tempLabel { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" } ; 
+    m_labels = tempLabel ; 
 }
 
 CML::~CML()
@@ -93,8 +97,6 @@ void CML::EvaluateModel(std::string &pred)
 
 void CML::GetResults(IVectorView<float> results, std::string &pred) 
 {
-    // load the labels
-    LoadLabels() ;
     // Find the top 3 probabilities
     std::vector<float> topProbabilities(3) ;
     std::vector<int> topProbabilityLabelIndexes(3) ;
@@ -115,28 +117,7 @@ void CML::GetResults(IVectorView<float> results, std::string &pred)
     pred = m_labels[topProbabilityLabelIndexes[0]].c_str() ; 
 }
 
-void CML::LoadLabels()
-{
-    // Parse labels from labels file.  We know the file's entries are already sorted in order.
-    std::ifstream labelFile { m_labelsFilePath, std::ifstream::in } ;  
-    if (labelFile.fail())
-    {
-        ATLTRACE("failed to load the %s file. Make sure it exists in the same folder as the app\r\n", m_labelsFilePath.c_str()) ;
-        exit(EXIT_FAILURE) ;
-    }
 
-    std::string s;
-    while (std::getline(labelFile, s, ','))
-    {
-        int labelValue = atoi(s.c_str()) ;
-        if (labelValue >= m_labels.size())
-        {
-            m_labels.resize(labelValue + 1) ;
-        }
-        std::getline(labelFile, s) ;
-        m_labels[labelValue] = s ;
-    }
-}
 
 
 

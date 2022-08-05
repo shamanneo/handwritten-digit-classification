@@ -40,7 +40,7 @@ LRESULT CResWnd::OnDestory(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*lParam*/, 
 
 void CResWnd::SetPred(std::string &pred) 
 {
-	m_sentence = _T("The model prediction value is :") ; 
+	m_sentence = _T("The model prediction value is : ") ; 
 	m_pred = pred.c_str() ; 
 	m_sentence.Append(m_pred) ; 
 	InvalidateRect(NULL, TRUE) ; 
