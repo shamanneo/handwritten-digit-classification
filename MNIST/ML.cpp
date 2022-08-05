@@ -23,17 +23,11 @@ CML::~CML()
 void CML::LoadModel()
 {
     // Load the model 
-    ATLTRACE("Loading modelfile '%ws' on the '%s' device\n", m_modelPath.c_str(), m_deviceName.c_str()) ;
-    DWORD ticks = ::GetTickCount() ; 
     m_model = LearningModel::LoadFromFilePath(m_modelPath) ; 
-    ticks = ::GetTickCount() - ticks ; 
-    ATLTRACE("model file loaded in %d ticks\n", ticks) ;
 }
 
 void CML::LoadImageFile() 
 {
-    ATLTRACE("Loading the image...\n") ;
-    DWORD ticks = ::GetTickCount() ;
     VideoFrame inputImage = nullptr ;
     try
     {
@@ -53,17 +47,12 @@ void CML::LoadImageFile()
         ATLTRACE("failed to load the image file, make sure you are using fully qualified paths\r\n") ;
         exit(EXIT_FAILURE) ;
     }
-    ticks = ::GetTickCount() - ticks ;
-    ATLTRACE("image file loaded in %d ticks\n", ticks) ;
     // all done
     m_imageFrame = inputImage ; 
 }
 
 void CML::BindModel()
 {
-    ATLTRACE("Binding the model...\n") ; 
-    DWORD ticks = GetTickCount() ;
-
     // now create a session and binding
     m_session = LearningModelSession{ m_model, LearningModelDevice(m_deviceKind) } ;
     m_binding = LearningModelBinding{ m_session } ;
@@ -73,21 +62,12 @@ void CML::BindModel()
     // std::vector<int64_t> shape({ 1, 1000, 1, 1 }) ;
     std::vector<int64_t> shape({ 1, 10 }) ;
     m_binding.Bind(L"Plus214_Output_0", TensorFloat::Create(shape)) ;
-
-    ticks = GetTickCount() - ticks ;
-    ATLTRACE("Model bound in %d ticks\n", ticks) ;
 }
 
 void CML::EvaluateModel(std::string &pred)
 {
     // now run the model
-    ATLTRACE("Running the model...\n") ;
-    DWORD ticks = GetTickCount() ;
-
     auto results = m_session.Evaluate(m_binding, L"RunId") ;
-
-    ticks = GetTickCount() - ticks ;
-    ATLTRACE("model run took %d ticks\n", ticks) ;
 
     // get the output
     auto resultTensor = results.Outputs().Lookup(L"Plus214_Output_0").as<TensorFloat>() ;
