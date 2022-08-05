@@ -13,6 +13,7 @@ CML::CML()
 	m_deviceKind = LearningModelDeviceKind::Default ;
     std::vector<std::string> tempLabel { "0", "1", "2", "3", "4", "5", "6", "7", "8", "9" } ; 
     m_labels = tempLabel ; 
+    LoadModel() ; 
 }
 
 CML::~CML()
@@ -42,10 +43,10 @@ void CML::LoadImageFile()
         // load a videoframe from it
         inputImage = VideoFrame::CreateWithSoftwareBitmap(softwareBitmap) ;
     }
-    catch (...)
+    catch(...)
     {
         ATLTRACE("failed to load the image file, make sure you are using fully qualified paths\r\n") ;
-        exit(EXIT_FAILURE) ;
+        ATLASSERT(0) ; 
     }
     // all done
     m_imageFrame = inputImage ; 
@@ -54,13 +55,12 @@ void CML::LoadImageFile()
 void CML::BindModel()
 {
     // now create a session and binding
-    m_session = LearningModelSession{ m_model, LearningModelDevice(m_deviceKind) } ;
-    m_binding = LearningModelBinding{ m_session } ;
+    m_session = LearningModelSession { m_model, LearningModelDevice(m_deviceKind) } ;
+    m_binding = LearningModelBinding { m_session } ;
     // bind the intput image
     m_binding.Bind(L"Input3", ImageFeatureValue::CreateFromVideoFrame(m_imageFrame)) ;
     // bind the output
-    // std::vector<int64_t> shape({ 1, 1000, 1, 1 }) ;
-    std::vector<int64_t> shape({ 1, 10 }) ;
+    std::vector<int64_t> shape { 1, 10 } ;
     m_binding.Bind(L"Plus214_Output_0", TensorFloat::Create(shape)) ;
 }
 
@@ -68,7 +68,6 @@ void CML::EvaluateModel(std::string &pred)
 {
     // now run the model
     auto results = m_session.Evaluate(m_binding, L"RunId") ;
-
     // get the output
     auto resultTensor = results.Outputs().Lookup(L"Plus214_Output_0").as<TensorFloat>() ;
     auto resultVector = resultTensor.GetAsVectorView() ;
@@ -77,15 +76,16 @@ void CML::EvaluateModel(std::string &pred)
 
 void CML::GetResults(IVectorView<float> results, std::string &pred) 
 {
+    const int nSize = 3 ; 
     // Find the top 3 probabilities
-    std::vector<float> topProbabilities(3) ;
-    std::vector<int> topProbabilityLabelIndexes(3) ;
-    for (uint32_t i = 0; i < results.Size(); i++)
+    std::vector<float> topProbabilities(nSize) ;
+    std::vector<int> topProbabilityLabelIndexes(nSize) ;
+    for(uint32_t i = 0 ; i < results.Size() ; i++)
     {
         // is it one of the top 3?
-        for (int j = 0; j < 3; j++)
+        for(int j = 0 ; j < nSize ; j++)
         {
-            if (results.GetAt(i) > topProbabilities[j])
+            if(results.GetAt(i) > topProbabilities[j])
             {
                 topProbabilityLabelIndexes[j] = i ;
                 topProbabilities[j] = results.GetAt(i) ;

@@ -96,7 +96,6 @@ void CMainWnd::Classify()
     std::string pred ;
 
     init_apartment() ;
-    m_ml.LoadModel();
     m_ml.LoadImageFile() ; 
     m_ml.BindModel() ; 
     m_ml.EvaluateModel(pred) ;
