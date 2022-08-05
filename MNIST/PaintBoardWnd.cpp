@@ -59,6 +59,7 @@ LRESULT CPaintBoardWnd::OnLButtonUp(UINT /*uMsg*/, WPARAM /*wParam*/, LPARAM /*l
 	HBITMAP hPrevBitmap = reinterpret_cast<HBITMAP>((::SelectObject(hMemDC,  m_hBitmap))) ;
 	::BitBlt(hMemDC, rc.left, rc.top, rc.right - rc.left, rc.bottom - rc.top, hDC, 0, 0, SRCCOPY) ; 
 	::SelectObject(hMemDC, hPrevBitmap) ; 
+	::DeleteDC(hMemDC) ; 
 	ReleaseDC(hDC) ; 
 	return 0 ; 
 }
@@ -119,6 +120,7 @@ bool CPaintBoardWnd::SaveBitmap()
 	}
 	hResizedBitmap = reinterpret_cast<HBITMAP>(::SelectObject(hMemDCDst, hPrevDstBitmap)) ; 
 	Gdiplus::Bitmap *pBitmap = Gdiplus::Bitmap::FromHBITMAP(hResizedBitmap, NULL) ; 
+	::DeleteObject(hResizedBitmap) ; 
 	InvertColor(pBitmap) ; // Convert black to white, white to black for model input.
 	CLSID pngClsid ; 
 	HRESULT hResult = ::CLSIDFromString(_T("{557cf406-1a04-11d3-9a73-0000f81ef32e}"), &pngClsid) ; 
@@ -140,7 +142,7 @@ bool CPaintBoardWnd::SaveBitmap()
 		ATLTRACE("The CLSID was not obtained.\n") ; 
 		return false ; 
 	}
-	::SelectObject(hMemDCDst, hPrevSrcBitmap) ; 
+	::SelectObject(hMemDCSrc, hPrevSrcBitmap) ; 
 	::DeleteDC(hMemDCDst) ; 
 	::DeleteDC(hMemDCSrc) ; 
 	ReleaseDC(hDC) ; 
