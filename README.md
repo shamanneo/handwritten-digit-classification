@@ -1,1 +1,1 @@
-# Handwritten-Digit-Classification
+# handwritten-digit-classification
